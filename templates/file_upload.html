@@ -1,0 +1,630 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} File Upload {% endblock %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}
+
+<link rel="stylesheet" href="/static/assets/plugins/chart-morris/css/morris.css">
+{% endblock stylesheets %}
+
+{% block content %}
+
+    <div class="pcoded-content">
+        <div class="pcoded-inner-content">
+            <!-- [ breadcrumb ] start -->
+
+            <!-- [ breadcrumb ] end -->
+            <div class="main-body">
+                <div class="page-wrapper">
+                    <!-- [ Main Content ] start -->
+                    <div class="col-xl-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Call Summary</h5>
+                                </div>
+                                <div class="card-block">
+                                    <form action="/process" method="POST" enctype="multipart/form-data">
+                                        <label>Upload MP3 Call here</label><br>
+                                        <input type="file" name="file" accept="audio/*" multiple>
+                                        <button type="submit" onclick="alert('Approximate Time {{time}} Minutes')" class="btn btn-primary">Process</button>
+                                    </form>
+                                </div>
+                            </div>
+                    </div>
+
+
+                    <h4>Speaker Diarization</h4>
+                    <div class="row">
+
+                        <br>
+
+
+                                                <!--       Donut Chart         -->
+
+                        <script src="/static/assets/js/Chart.js-2.9.4/dist/Chart.min.js"></script>
+                        <div class="col-xl-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Call Summary</h5>
+                                </div>
+                                <div class="card-block">
+                                    <h5>Call Duration: {{dur}} Seconds</h5>
+                                    <h5>Speakers Found: {{speaker_cn}}</h5>
+                                    <canvas id="donut-chart" style="height:95px;margin-left:0%;width:200px"></canvas>
+                                    <script>
+                                    // get chart canvas
+                                      var ctx = document.getElementById("donut-chart");
+
+                                      var myChart = new Chart(ctx, {
+                                                  type: 'doughnut',
+                                                  data: {
+                                                    labels: ['Total Speech Time', 'Total Overlap', 'Total Silence'],
+                                                    datasets: [{
+                                                      label: '# of Tomatoes',
+                                                      data: [{{tot_spk}} ,{{tot_ovl}},{{tot_sil}}],
+                                                      backgroundColor: [
+                                                        '#F47A1F',
+                                                        '#F13C59',
+                                                        '#003F5C'
+                                                      ],
+                                                      borderColor: [
+                                                        '#F47A1F',
+                                                        '#F13C5',
+                                                        '#003F5C'
+                                                      ],
+                                                      borderWidth: 1
+                                                    }]
+                                                  },
+                                                  options: {
+                                                    cutoutPercentage: 40,
+                                                    responsive: true,
+                                                    elements: {
+                                                                  center: {
+                                                                    text: '300',
+                                                                    color: '#FF6384', // Default is #000000
+                                                                    fontStyle: 'Arial', // Default is Arial
+                                                                    sidePadding: 20, // Default is 20 (as a percentage)
+                                                                    minFontSize: 25, // Default is 20 (in px), set to false and text will not wrap.
+                                                                    lineHeight: 25 // Default is 25 (in px), used for when text wraps
+                                                                  }
+                                                                }
+
+                                                  }
+                                                });
+
+
+                                    </script>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!--       Donut Chart         -->
+
+                                                <!--    Charts     -->
+                        <script src="/static/assets/js/Chart.js-2.9.4/dist/Chart.min.js"></script>
+
+                            <div class="col-xl-6">
+                            <div class="card daily-sales">
+                                <div class="card-block">
+                                    <div class="chart-container">
+                                        <script src="/static/assets/js/Chart.js-2.9.4/dist/Chart.min.js"></script>
+                                        <script src="/static/assets/js/Chart.js-2.9.4/samples/utils.js"></script>
+                                    <canvas id="canvas1" width="300px" height="225px"></canvas>
+                                </div>
+<!--                                <button id="randomizeData">Randomize Data</button>-->
+                                <script>
+                                    var chartData = {
+                                        labels: [{% for item in labels1 %}
+                                                   "{{item}}",
+                                                  {% endfor %}],
+                                        datasets: [{
+                                            type: 'line',
+                                            label: 'Overlap',
+                                            borderColor: window.chartColors.blue,
+                                            borderWidth: 2,
+                                            fill: false,
+                                            data: [
+                                                {% for item in diff %}
+                                                      {{item}},
+                                                    {% endfor %}
+                                            ]
+                                        },
+                                        {
+                                            type: 'bar',
+                                            label: 'Speaker A',
+                                            backgroundColor: window.chartColors.red,
+                                            data: [
+                                                {% for item in speak_A %}
+                                                                  {{item}},
+                                                                {% endfor %}
+                                            ]
+                                        },
+                                         {
+                                            type: 'bar',
+                                            label: 'Speaker B',
+                                            backgroundColor: window.chartColors.blue,
+                                            data: [
+                                                {% for item in speak_B %}
+                                                                  {{item}},
+                                                                {% endfor %}
+                                            ]
+                                        }
+                                        ]
+
+                                    };
+
+                                        var ctx = document.getElementById('canvas1').getContext('2d');
+                                        myMixedChart = new Chart(ctx, {
+                                            type: 'bar',
+                                            data: chartData,
+                                            options: {
+                                                responsive: true,
+                                                title: {
+                                                    display: true,
+                                                    text: 'Overall Call Summary'
+                                                },
+                                                tooltips: {
+                                                    mode: 'index',
+                                                    intersect: true
+                                                },
+                                                    scales : {
+                                                        xAxes : [ {
+                                                            gridLines : {
+                                                                display : false
+                                                            },
+                                                            stacked: false
+                                                        } ],
+                                                        yAxes : [{
+                                                            gridLines: { display : false },
+                                                            stacked: false,
+
+                                                            }]
+                                                        }
+                                            }
+                                        });
+
+
+                                    document.getElementById('randomizeData').addEventListener('click', function() {
+                                        chartData.datasets.forEach(function(dataset) {
+                                            dataset.data = dataset.data.map(function() {
+                                                return randomScalingFactor();
+                                            });
+                                        });
+                                       myMixedChart.update();
+                                    });
+                                </script>
+                                </div>
+                            </div>
+                        </div>
+                        <!--  Line Chart     -->
+
+                        <!--[ daily sales section ] start-->
+                        <div class="col-md-5 col-xl-3">
+                            <div class="card yearly-sales">
+                                <div class="card-block">
+                                    <h6 class="mb-4">Total Speech Time</h6>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                            <h4 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather text-c-green f-30 m-r-10"></i>{{two}} Sec</h4>
+                                        </div>
+                                        <div class="col-3 text-right">
+                                            <p class="m-b-0">{{specperc}}%</p>
+                                        </div>
+                                    </div>
+                                    <div class="progress m-t-30" style="height: 7px;">
+                                        <div id="pg" class="progress-bar progress-c-theme" role="progressbar" style="width: 70%;" aria-valuenow={{specperc}} aria-valuemin="0" aria-valuemax="100">
+                                            <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+                                            <script> $("#pg").css("width","{{specperc}}"); </script>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--[ daily sales section ] end-->
+                        <!--[ Monthly  sales section ] starts-->
+                        <div class="col-md-5 col-xl-3">
+                            <div class="card yearly-sales">
+                                <div class="card-block">
+                                    <h6 class="mb-4">Total Silence Duration</h6>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                            <h4 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather  text-c-green f-30 m-r-10"></i>{{three}} Sec</h4>
+                                        </div>
+                                        <div class="col-3 text-right">
+                                            <p class="m-b-0">{{silperc}}%</p>
+                                        </div>
+                                    </div>
+                                    <div class="progress m-t-30" style="height: 7px;">
+                                        <div id="pg1" class="progress-bar progress-c-theme" role="progressbar" style="width: 70%;" aria-valuenow={{silperc}} aria-valuemin="0" aria-valuemax="100">
+                                            <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+                                            <script> $("#pg1").css("width","{{silperc}}"); </script>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--[ Monthly  sales section ] end-->
+                        <!--[ year  sales section ] starts-->
+                        <div class="col-md-5 col-xl-3">
+                            <div class="card yearly-sales">
+                                <div class="card-block">
+                                    <h6 class="mb-4">Maximum Silence Duration</h6>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                            <h4 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather text-c-green f-30 m-r-10"></i>{{four}} Sec</h4>
+                                        </div>
+                                        <div class="col-3 text-right">
+                                            <p class="m-b-0"></p>
+                                        </div>
+                                    </div>
+                                    <div class="progress m-t-30" style="height: 7px;">
+                                        <div class="progress-bar progress-c-theme" role="progressbar" style="width: 70%;" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--[ year  sales section ] end-->
+                        <!--[ Recent Users ] start-->
+
+                        <!--[ Recent Users ] end-->
+
+                        <!-- [ statistics year chart ] start -->
+                       <div class="col-md-5 col-xl-3">
+                            <div class="card Monthly-sales">
+                                <div class="card-block">
+                                    <h6 class="mb-4">Total Overlap Duration</h6>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                            <h4 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather text-c-red f-30 m-r-10"></i>{{five}} Sec</h4>
+                                        </div>
+                                        <div class="col-3 text-right">
+                                            <p class="m-b-0">{{ovlperc}}%</p>
+                                        </div>
+                                    </div>
+                                    <div class="progress m-t-30" style="height: 7px;">
+                                        <div id="progressBar" class="progress-bar progress-c-theme2" role="progressbar" style="width: 35%;" aria-valuenow={{ovlperc}} aria-valuemin="0" aria-valuemax="100">
+                                            <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+                                            <script> $("#progressBar").css("width","{{ovlperc}}"); </script>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- [ statistics year chart ] end -->
+
+                        <div class="col-md-5 col-xl-3">
+                            <div class="card Monthly-sales">
+                                <div class="card-block">
+                                    <h6 class="mb-4">Max Overlap Duration</h6>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                            <h3 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather text-c-red f-30 m-r-10"></i>{{six}} Sec</h3>
+                                        </div>
+                                        <div class="col-3 text-right">
+                                            <p class="m-b-0"></p>
+                                        </div>
+                                    </div>
+                                    <div class="progress m-t-30" style="height: 7px;">
+                                        <div class="progress-bar progress-c-theme2" role="progressbar" style="width: 35%;" aria-valuenow={{six}} aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!--[social-media section] start-->
+
+
+                        <!--[social-media section] end-->
+
+
+
+
+                    </div>
+                    <!-- [ Main Content ] end -->
+                    <h4>Emotion Detection</h4>
+                    <div class="row">
+
+                        <div class="col-xl-6">
+                            <div class="card Monthly-sales">
+                                <div class="card-block">
+                                    <h6 class="mb-4">Emotion Detection</h6>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                           <canvas id="donut-chart1" height="200px" style="margin-left:0px;margin-right:0px;"></canvas>
+                                                   <script>
+                                                    // get chart canvas
+                                                      var ctx = document.getElementById("donut-chart1");
+
+                                                      var myChart = new Chart(ctx, {
+                                                                  type: 'doughnut',
+
+                                                                  data: {
+
+                                                                    labels: ['Happy', 'Sad', 'Angry','Neutral'],
+                                                                    datasets: [{
+                                                                      label: ['Happy', 'Sad', 'Angry','Neutral'],
+                                                                      data: [{{hap}},{{sad}},{{ang}},{{neu}}],
+                                                                      backgroundColor: [
+                                                                        '#F47A2F',
+                                                                        '#F13C60',
+                                                                        '#003F5A'
+                                                                      ],
+                                                                      borderColor: [
+                                                                        '#F47A1F',
+                                                                        '#F13C5',
+                                                                        '#003F5C'
+                                                                      ],
+                                                                      borderWidth: 1
+                                                                    },
+                                                                    {
+                                                                      label: ['Happy', 'Sad', 'Angry','Neutral'],
+                                                                      data: [{{happy1}},{{sad1}},{{angry1}},{{neutral1}}],
+                                                                      backgroundColor: [
+                                                                        '#F47A2F',
+                                                                        '#F13C60',
+                                                                        '#003F5A'
+                                                                      ],
+                                                                      borderColor: [
+                                                                        '#F47A1F',
+                                                                        '#F13C5',
+                                                                        '#003F5C'
+                                                                      ],
+                                                                      borderWidth: 1
+                                                                    }
+                                                                    ]
+                                                                  },
+                                                                  options: {
+                                                                    //cutoutPercentage: 40,
+                                                                    responsive: true,
+                                                                    elements: {
+                                                                                  center: {
+                                                                                    text: '300',
+                                                                                    color: '#FF6384', // Default is #000000
+                                                                                    fontStyle: 'Arial', // Default is Arial
+                                                                                    sidePadding: 20, // Default is 20 (as a percentage)
+                                                                                    minFontSize: 25, // Default is 20 (in px), set to false and text will not wrap.
+                                                                                    lineHeight: 25 // Default is 25 (in px), used for when text wraps
+                                                                                  }
+                                                                                }
+
+                                                                  }
+                                                                });
+
+
+                                                    </script>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-7 col-xl-5">
+                            <div class="card Monthly-sales">
+                                <div class="card-block">
+                                    <h6 class="mb-4">Emotion Detection</h6>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                            <h5>Speaker 1</h5>
+                                            <center>
+                                            <span style='font-size:40px;'>&#128578;</span>
+                                            <span style='font-size:40px;'>&#128577;</span>
+                                            <span style='font-size:40px;'>&#128545;</span>
+                                            <span style='font-size:40px;'>&#128528;</span>
+
+                                            <br>
+                                            &nbsp;
+                                            <span>{{hap}}%</span> &nbsp;&nbsp;
+                                            <span style="margin-left:5px;">{{sad}}%</span> &nbsp;&nbsp;&nbsp;
+                                            <span style="margin-left:5px;">{{ang}}%</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            <span style="margin-left:5px;">{{neu}}%</span>
+                                            </center>
+<!--                                            <h3 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather text-c-red f-30 m-r-10"></i>{{six}} Sec</h3>-->
+
+                                        </div>
+
+                                    </div>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                            <h5>Speaker 2</h5>
+                                            <center>
+                                            <span style='font-size:40px;'>&#128578;</span>
+                                            <span style='font-size:40px;'>&#128577;</span>
+                                            <span style='font-size:40px;'>&#128545;</span>
+                                            <span style='font-size:40px;'>&#128528;</span>
+
+                                            <br>
+                                            &nbsp;
+                                            <span>{{happy1}}%</span> &nbsp;&nbsp;
+                                            <span style="margin-left:5px;">{{sad1}}%</span> &nbsp;&nbsp;&nbsp;
+                                            <span style="margin-left:5px;">{{angry1}}%</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            <span style="margin-left:5px;">{{neutral1}}%</span>
+                                            </center>
+<!--                                            <h3 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather text-c-red f-30 m-r-10"></i>{{six}} Sec</h3>-->
+
+                                        </div>
+
+                                    </div>
+<!--                                    <div class="progress m-t-30" style="height: 7px;">-->
+<!--                                        <div class="progress-bar progress-c-theme2" role="progressbar" style="width: 35%;" aria-valuenow={{six}} aria-valuemin="0" aria-valuemax="100"></div>-->
+<!--                                    </div>-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                                          <div class="col-md-5 col-xl-3">
+                            <div class="card Monthly-sales">
+                                <div class="card-block">
+                                    <h6 class="mb-4">Angry Instances-A</h6>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                            <h3 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather text-c-red f-30 m-r-10"></i>{{a_ang}}</h3>
+                                        </div>
+                                        <div class="col-3 text-right">
+                                            <p class="m-b-0"></p>
+                                        </div>
+                                    </div>
+<!--                                    <div class="progress m-t-30" style="height: 7px;">-->
+<!--                                        <div class="progress-bar progress-c-theme2" role="progressbar" style="width: 35%;" aria-valuenow={{a_ang}} aria-valuemin="0" aria-valuemax="100"></div>-->
+<!--                                    </div>-->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5 col-xl-3">
+                            <div class="card Monthly-sales">
+                                <div class="card-block">
+                                    <h6 class="mb-4">Sad Instances-A</h6>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                            <h3 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather text-c-red f-30 m-r-10"></i>{{a_sad}}</h3>
+                                        </div>
+                                        <div class="col-3 text-right">
+                                            <p class="m-b-0"></p>
+                                        </div>
+                                    </div>
+<!--                                    <div class="progress m-t-30" style="height: 7px;">-->
+<!--                                        <div class="progress-bar progress-c-theme2" role="progressbar" style="width: 35%;" aria-valuenow={{a_ang}} aria-valuemin="0" aria-valuemax="100"></div>-->
+<!--                                    </div>-->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5 col-xl-3">
+                            <div class="card Monthly-sales">
+                                <div class="card-block">
+                                    <h6 class="mb-4">Happy Instances-A</h6>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                            <h3 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather text-c-red f-30 m-r-10"></i>{{a_hap}}</h3>
+                                        </div>
+                                        <div class="col-3 text-right">
+                                            <p class="m-b-0"></p>
+                                        </div>
+                                    </div>
+<!--                                    <div class="progress m-t-30" style="height: 7px;">-->
+<!--                                        <div class="progress-bar progress-c-theme2" role="progressbar" style="width: 35%;" aria-valuenow={{a_ang}} aria-valuemin="0" aria-valuemax="100"></div>-->
+<!--                                    </div>-->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5 col-xl-3">
+                            <div class="card Monthly-sales">
+                                <div class="card-block">
+                                    <h6 class="mb-4">Neutral Instances-A</h6>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                            <h3 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather text-c-red f-30 m-r-10"></i>{{a_neu}}</h3>
+                                        </div>
+                                        <div class="col-3 text-right">
+                                            <p class="m-b-0"></p>
+                                        </div>
+                                    </div>
+<!--                                    <div class="progress m-t-30" style="height: 7px;">-->
+<!--                                        <div class="progress-bar progress-c-theme2" role="progressbar" style="width: 35%;" aria-valuenow={{a_ang}} aria-valuemin="0" aria-valuemax="100"></div>-->
+<!--                                    </div>-->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5 col-xl-3">
+                            <div class="card Monthly-sales">
+                                <div class="card-block">
+                                    <h6 class="mb-4">Angry Instances-B</h6>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                            <h3 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather text-c-red f-30 m-r-10"></i>{{b_ang}}</h3>
+                                        </div>
+                                        <div class="col-3 text-right">
+                                            <p class="m-b-0"></p>
+                                        </div>
+                                    </div>
+<!--                                    <div class="progress m-t-30" style="height: 7px;">-->
+<!--                                        <div class="progress-bar progress-c-theme2" role="progressbar" style="width: 35%;" aria-valuenow={{a_ang}} aria-valuemin="0" aria-valuemax="100"></div>-->
+<!--                                    </div>-->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5 col-xl-3">
+                            <div class="card Monthly-sales">
+                                <div class="card-block">
+                                    <h6 class="mb-4">Sad Instances-B</h6>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                            <h3 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather text-c-red f-30 m-r-10"></i>{{b_sad}}</h3>
+                                        </div>
+                                        <div class="col-3 text-right">
+                                            <p class="m-b-0"></p>
+                                        </div>
+                                    </div>
+<!--                                    <div class="progress m-t-30" style="height: 7px;">-->
+<!--                                        <div class="progress-bar progress-c-theme2" role="progressbar" style="width: 35%;" aria-valuenow={{a_ang}} aria-valuemin="0" aria-valuemax="100"></div>-->
+<!--                                    </div>-->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5 col-xl-3">
+                            <div class="card Monthly-sales">
+                                <div class="card-block">
+                                    <h6 class="mb-4">Happy Instances-B</h6>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                            <h3 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather text-c-red f-30 m-r-10"></i>{{b_hap}}</h3>
+                                        </div>
+                                        <div class="col-3 text-right">
+                                            <p class="m-b-0"></p>
+                                        </div>
+                                    </div>
+<!--                                    <div class="progress m-t-30" style="height: 7px;">-->
+<!--                                        <div class="progress-bar progress-c-theme2" role="progressbar" style="width: 35%;" aria-valuenow={{a_ang}} aria-valuemin="0" aria-valuemax="100"></div>-->
+<!--                                    </div>-->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5 col-xl-3">
+                            <div class="card Monthly-sales">
+                                <div class="card-block">
+                                    <h6 class="mb-4">Neutral Instances-B</h6>
+                                    <div class="row d-flex align-items-center">
+                                        <div class="col-9">
+                                            <h3 class="f-w-300 d-flex align-items-center  m-b-0"><i class="feather text-c-red f-30 m-r-10"></i>{{b_neu}}</h3>
+                                        </div>
+                                        <div class="col-3 text-right">
+                                            <p class="m-b-0"></p>
+                                        </div>
+                                    </div>
+<!--                                    <div class="progress m-t-30" style="height: 7px;">-->
+<!--                                        <div class="progress-bar progress-c-theme2" role="progressbar" style="width: 35%;" aria-valuenow={{a_ang}} aria-valuemin="0" aria-valuemax="100"></div>-->
+<!--                                    </div>-->
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<!--    <script src="/static/assets/js/pages/chart-morris-custom.js"></script>-->
+<script src="/static/assets/js/pages/Chart.min.js"></script>
+<!--  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.min.js">-->
+
+
+{% endblock javascripts %}
