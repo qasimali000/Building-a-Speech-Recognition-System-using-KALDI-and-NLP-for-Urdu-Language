@@ -1,10 +1,3 @@
-"""
-Version: 0.0.1
-Company: Sybrid Pvt. Ltd.
-
-This file contains the code which returns the output Spectrograms which results for a flag if the call is Good or Unusual.
-
-"""
 
 from keras.models import model_from_json
 import os
