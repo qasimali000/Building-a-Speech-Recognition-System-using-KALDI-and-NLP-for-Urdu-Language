@@ -98,10 +98,6 @@ for speaker in next(os.walk(path))[1]:
     index = int(len(wavfiles) * 1.0)
     trainfiles = wavfiles[:index]
 
-    #traintext = open('scp_files/text', 'w')
-    #trainscp = open('scp_files/wav.scp', 'w')
-    #trainutt2spk = open('scp_files/utt2spk', 'w')
-    #utt2spk = open('/srv/kaldi/egs/echo_asr/scp_files/utt','w')
 
     from tqdm import tqdm
     for wav in tqdm(trainfiles):
@@ -206,15 +202,3 @@ def predict_intent_casual(text):
     labels = label[0]
     print(labels)
     return labels
-
-"""
-def predict_empathy_courtesy(text):
-    vectorizer = pickle.load(open('Files/empathy_assurance_courtesy_model/vectorizer.sav', 'rb'))
-    classifier = pickle.load(open('Files/empathy_assurance_courtesy_model/classifier.sav', 'rb'))
-    cleaned_sentences = cleaning([text])
-    review_vector = vectorizer.transform(cleaned_sentences)
-    label = classifier.predict(review_vector)
-    labels = label[0]
-    print(labels)
-    return labels
-"""
