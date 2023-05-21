@@ -22,7 +22,7 @@ lent = []
 mint = []
 secs = []
 src_folder = '/Users/qasimali/Desktop/Qasim/Aston/Dissertation/project/kaldi/egs/qoul/audio/Audios_Folders/'
-# dst_folder = 'D:\\QasimAli-DSE\\IEMOCAP_full_release\\Session5\\sentences\\mp3\\'                             #Get the list of wav files to convert to mp3
+
 nn = os.listdir(src_folder)
 audio_files = librosa.util.find_files(src_folder, ext=['wav'])
 for file in audio_files:
