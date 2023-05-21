@@ -1,10 +1,8 @@
 
 """
-Version: 0.0.1
-Author: Qasim Ali
 Pipeline which connects Speaker Dirarization, Speaker Overlap and the Flag for Good/Unusual Calls.
 
-This file contains the code which returns the output for Speaker Diarization, Overlap Detection, Emotion Detection and Flag.
+This file contains the code which returns the output for Speaker Diarization, Overlap Detection and Flag.
 The code also performs basic data preparations for Audio files such as MP3 to WAV Conversion, Appending WAV File and creating
 Spectrograms.
 """
@@ -40,9 +38,6 @@ path_wav_split = "Files/wav/"
 appended_files_nns ="Files/appended_nns/" # path to store non noise supressed wav file
 normalized_wav = "Files/normalized_wav/" # path for normalized wav audio
 appended_normalized = "Files/appended_normalized/"
-"""  The Following path will be used to store the appended file in the different directory which will be used 
-for Emotion Detection API's Sepctrogram Generation
-"""
 appended_files1 = "Files/appended1/"
 
 diaar = []
@@ -222,7 +217,6 @@ The following main function declares the paths and call different functions whic
 """
 def main():
     # The following path is to get MP3 file
-    #mp3_path_audio = "Files/SQA_testing_mp3/test_split"
     mp3_path_audio = 'Files/mp3'
 
     # This path is for WAV File after conversion it is stored there.
@@ -252,14 +246,6 @@ def main():
     files_append_nns(wav_path_audio)
 
     sample_converter(wav_path_audio,appended_8k)
-    # sample_converter(appended_normalized,appended_8k)
-    # Spectrogram Extraction
-    start_time = time.time()
-    for file in wav_audio_files:
-        signal, sr = load_audio_recording(file)
-        short_time_fourier_transform_and_plot(signal, sr, os.path.basename(os.path.splitext(file)[0]), spectrogram_path)
-
-    print(" ----%s seconds ------" % (time.time() - start_time))
 
     #  This function returns this function will returns different variables and list which are being used in USER INTERFACE
     return save_as_xlsx()
@@ -335,7 +321,7 @@ Code for Audio Normalization
 def match_target_amplitude(sound, target_dBFS):
     change_in_dBFS = target_dBFS - sound.dBFS
     return sound.apply_gain(change_in_dBFS)
-#path_to_normalized_files = "D:/Normalized_Audio/Audio/normalized/"
+
 def main_normalization(wav_path):
     files = os.listdir(wav_path)
     for i in files:
@@ -390,25 +376,7 @@ def files_append(wav_audio):
     for file in audio_files:
         dur = librosa.get_duration(filename=file)
         print(dur)
-        """
-        if dur < 300:
-            f = AudioSegment.from_wav ( file )
-            name , ext = os.path.splitext ( file )
-            nm = os.path.basename ( name )
 
-            f1 = f.append ( f )
-            f2 = f1.append ( f )
-            #f3 = f2.append ( f )
-
-            f2.export ( appended_files + "{0}.wav".format ( nm ) , format = "wav" )     # Storing the appended file with original name to path for all.
-            f2.export(appended_files1 + "{0}.wav".format(nm), format="wav")
-        else:
-            f = AudioSegment.from_wav(file)
-            name, ext = os.path.splitext(file)
-            nm = os.path.basename(name)
-            f.export(appended_files + "{0}.wav".format(nm),format="wav")  # Storing the appended file with original name to path for all.
-            f.export(appended_files1 + "{0}.wav".format(nm),format="wav")  # Storing the appended file with original name to path for all.
-        """
         f = AudioSegment.from_wav ( file )
         name , ext = os.path.splitext ( file )
         nm = os.path.basename ( name )
@@ -427,26 +395,7 @@ def files_append_nns(wav_audio):
     print ( audio_files )
     for file in audio_files:
         dur = librosa.get_duration(filename=file)
-        """
-        print(dur)
-        if dur < 300:
-            f = AudioSegment.from_wav ( file )
-            name , ext = os.path.splitext ( file )
-            nm = os.path.basename ( name )
 
-            f1 = f.append ( f )
-            f2 = f1.append ( f )
-            #f3 = f2.append ( f )
-
-            f2.export ( appended_normalized + "{0}.wav".format ( nm ) , format = "wav" )     # Storing the appended file with original name to path for all.
-            f2.export ( appended_files1 + "{0}.wav".format ( nm ) , format = "wav" )     # Storing the appended file with original name to path for all.
-        else:
-            f = AudioSegment.from_wav(file)
-            name, ext = os.path.splitext(file)
-            nm = os.path.basename(name)
-            f.export(appended_normalized + "{0}.wav".format(nm),format="wav")  # Storing the appended file with original name to path for all.
-            f.export(appended_files1 + "{0}.wav".format(nm), format="wav")
-        """
         #dur = librosa.get_duration(filename=file)
         # print(dur)
         f = AudioSegment.from_wav ( file )
@@ -529,73 +478,6 @@ def short_time_fourier_transform_and_plot(signal, sr,  file, path):  # stft Spec
     close()
     # Qasim did work to store spectrogram in same name
 
-            #########################################   EMOTION DETECTION INTEGRATION ########################################
-
-sr = 16000
-
-# function for STFT
-def short_time_fourier_transform_and_plot_em(signal, file, path):  # stft Spectrogram (Short time fourier transform)
-
-    n_fft = 512  # no of samples per fft, approx 30ms for 8000 sampling rate, Vary for different campaigns
-    hop_length = 128  # how much we shift during fft, 16ms for 8000Hz sampling rate
-    plot()
-    stft_spectrogram = np.abs(librosa.stft(signal, hop_length=hop_length, n_fft=n_fft))
-
-    log_spectrogram = librosa.amplitude_to_db(stft_spectrogram)
-    librosa.display.specshow(log_spectrogram, sr=16000, hop_length=hop_length)
-
-    set_cmap('plasma')
-    clim(-50, +40)
-    # show()
-    savefig(path + '\\' + file + '.png')
-    close()
-
-########################## Function to Create Spectrograms for 2 Seconds ##############################
-
-def create_spectogram(path,df_speaker_1,df_speaker_2):
-
-    appended_files_path = path  # link to appended file
-
-    orig_wave_files = os.listdir(appended_files_path)
-
-    fl = len(orig_wave_files)/1000
-    az = df_speaker_1['end_time'] <= fl/3
-    print(az)
-    # if orig_wave_files:
-    spectrogram_path = 'Files/emotion_spectrogram' # Path to store Spectrograms for Speaker A
-    spectrogram_path1 = 'Files/emotion_spectrogram1' # Path to store Spectrograms for Speaker B
-    i = 0
-
-    for file in orig_wave_files:
-        # these will be loaded from pyannote_diarization
-        # df_speaker_1, df_speaker_2 = pyannote_diarization.dia(file)
-        # os.remove(path + "MCDONALD_20200607-014215_cmt35271_03016067777-CC.wav_audio.rttm")
-        orig_wav_vector, _sr = librosa.load(appended_files_path + file , sr=sr)
-        for index, row in df_speaker_1.iterrows():
-            # print (row['start_time'])
-            start_frame = math.floor(row['start_time'] * sr)
-            end_frame = math.floor(row['end_time'] * sr)
-            truncated_wav_vector = orig_wav_vector[start_frame:end_frame + 1]
-
-            short_time_fourier_transform_and_plot_em(truncated_wav_vector, file + "_" + str(i), spectrogram_path)
-
-            i = i + 1
-
-        for index, row in df_speaker_2.iterrows():
-            # print (row['start_time'])
-            start_frame = math.floor(row['start_time'] * sr)
-            end_frame = math.floor(row['end_time'] * sr)
-            truncated_wav_vector = orig_wav_vector[start_frame:end_frame + 1]
-
-            short_time_fourier_transform_and_plot_em(truncated_wav_vector, file + "_" + str(i), spectrogram_path1)
-
-            i = i + 1
-
-# create_spectogram()
-
-
-
-            #########################################   EMOTION DETECTION INTEGRATION ########################################
 
 
 ############################## STORING TRANSCRIPTION FILES as ASR REPORTS WITH AUDIO FILE NAMES ########################
@@ -705,14 +587,13 @@ def intent_write():
 
 """
 This function concludes all the integrations and operations into this one as it returns the output for Speaker Diarization,
-Overlap, Emotion Model Percentages and dataframes
+Overlap, Model Percentages and dataframes
 """
 def save_as_xlsx():
     # Code for Diarization integration to report
 
     import metadata_xyzz
     start_time_dia = time.time()
-    #tst, sil, mxsl,ovlp, mxovl,ovldurr, ovldurr1, silperc, specperc, ovlperc, speaker_cn, dur, diff,l1,l11,l2,l22, l3, l33, speak_A, speak_B,df_speaker_1,df_speaker_2 = Speaker_DIA(appended_files)
     tst, sil, mxsl,ovlp, mxovl,ovldurr, ovldurr1, silperc, specperc, ovlperc,l1,l11 = Speaker_DIA(appended_8k)
     print(len(l1))
     print(" ----%s Speaker Diarization Time in seconds ------" % (time.time() - start_time_dia))
@@ -734,44 +615,6 @@ def save_as_xlsx():
     # dataframe.to_excel("Files/Reports/Final_Report.xlsx", index=False)
 
     # End diarization module integration
-
-    """Files Split """
-    """
-
-    file_list = os.listdir(appended_8k)
-    stat = []
-    n1 = 1
-
-    for file in file_list:
-        import soundfile as sf
-        start_times_A = l1
-        end_times_A = l11
-        #start_times_B = l2
-        #end_times_B = l22
-        #start_times_C = l3
-        #end_times_C = l33
-
-
-        f= sf.SoundFile(appended_8k + file)
-        duration = len(f) / f.samplerate
-        speakers = 3
-        #if not start_times_B:
-            #speakers = 1
-        #elif not start_times_C:
-            #speakers = 2
-
-        #if (end_times_A - start_times_A > 1 and end_times_B - start_times_B > 1):
-        #stat.append([(os.path.splitext(os.path.basename(file))[0]),(duration/3),speakers])
-        print("Printing in File split function!!!!!!!!!",len(start_times_A))
-        split_audio_file(sentences_path, appended_8k + file, start_times_A, end_times_A)
-        #split_audio_file(sentences_path, appended_8k + file, start_times_B, end_times_B, "B")
-        #split_audio_file(sentences_path, appended_8k + file, start_times_C, end_times_C, "C")
-
-        #else:
-            #continue
-        """
-
-    """ Files Split"""
 
     print("KALDI TRANSCRIPTION SECTION: ")
     start_time2 = time.time()
