@@ -14,10 +14,6 @@ def audio_duration(length):
     return hours, mins, seconds  # returns the duration
 
 
-# Create a WAVE object
-# Specify the directory address of your wavpack file
-# "alarm.wav" is the name of the audiofile
-# audio = WAVE("alarm.wav")
 lent = []
 mint = []
 secs = []
