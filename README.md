@@ -1,14 +1,13 @@
-# Building a Speech Recognition system using KALDI & NLP to detect certain words in telephonic calls data
+#Project Overview
+This project focuses on building a speech recognition system using KALDI and NLP to detect specific words in telephonic call data.
+It includes all the necessary data and code used in the project.
 
-This repository contains all the data along with code used in this project. You'll need KALDI properly configured as well as Python 3 or above to execute scripts.
+#Requirements: 
+A properly configured KALDI setup and Python 3 or above.
 
+#Repository Structure
+The repository follows a Flask Application structure.
+The files folder contains all the data and files used for KALDI, along with scripts for data preparation.
 
-# Structure
-
-The folder structure in this repository follows a Flask Application structure.
-
-The files folder contains all the data and files used for KALDI. There are some scripts among the main files which can be used for data preparation.
-
-
-
-Use the **requirement.txt** file to install all the required packages in Python
+#Requirements
+Use the **requirement.txt** file to install all necessary Python packages.
